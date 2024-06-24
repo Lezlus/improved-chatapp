@@ -14,7 +14,7 @@ export async function POST(request: Request) {
 
     if (data.receiverId) {
       // Private DM
-      pusherServer.trigger(toPusherKey(`chat:${sortObjectIds(data.senderId, data.receiverId)}`), "incoming-message", message)
+      await pusherServer.trigger(toPusherKey(`chat:${sortObjectIds(data.senderId, data.receiverId)}`), "incoming-message", message)
 
     }
     return NextResponse.json({ success: true, message }, { status: 201 });
