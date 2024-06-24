@@ -1,0 +1,27 @@
+@import "colors";
+
+.container {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+
+  .register__box {
+    padding: 2em;
+    background-color: $secondary-bg-color;
+    display: flex;
+    flex-direction: column;
+    gap: 1em;
+    h2 {
+      color: white;
+    }
+  
+  
+    .form__control {
+      label {
+        color: white;
+      }
+    }
+  }
+
+}

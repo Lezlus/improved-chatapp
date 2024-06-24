@@ -1,95 +1,128 @@
+"use client";
+
 import Image from "next/image";
 import styles from "./page.module.css";
-
+import { useSession } from "next-auth/react";
+import "./styles/app.scss";
+import {
+  Grid,
+  GridItem,
+  Heading,
+  Avatar,
+  AvatarBadge,
+  AvatarGroup,
+  Divider,
+  Box,
+  Button,
+} from "@chakra-ui/react";
+import GroupChat from "./components/client/GroupChat";
+import FindConversation from "./components/client/FindConversation";
+import TabOption from "./components/client/TabOption";
+import DirectMessages from "./components/client/DirectMessages";
+import UserAvatar from "./components/client/UserAvatar";
+import DirectMessageChat from "./components/client/DirectMessageChat";
+import GroupMessageChat from "./components/client/GroupMessageChat";
+import { validateUsersSchema, UserType } from "../../types";
+import { useEffect, useState, useRef } from "react";
+import { MainViews } from "./components/client/types";
+import FriendsSection from "./components/client/FriendsSection";
+import { UserUnpopulatedType } from "../../types/userUnpopulated";
+import { FriendInviteSchemaType } from "../../types/friendInvites";
+import MessageService from "./_services/messageService";
+import { PopulatedMessageSchemaType } from "../../types/messages";
 export default function Home() {
+  const { data: session, status, update } = useSession();
+  const [view, setView] = useState<MainViews>("DIRECT")
+  const [user, setUser] = useState<UserType>();
+  const [selectedFriend, setSelectedFriend] = useState<UserUnpopulatedType>();
+  const [messages, setMessages] = useState<PopulatedMessageSchemaType[]>([]);
+
+  useEffect(() => {
+    if (session?.user) {
+      console.log("called");
+      setUser(validateUsersSchema(session?.user));
+    }
+  }, [session?.user])
+
+  useEffect(() => {
+    if (selectedFriend) {
+      if (user) {
+        MessageService.getMessagesBetweenUsers({ currentUser: user.id, nextUser: selectedFriend._id })
+          .then(res => {
+            if (res.success) {
+              setMessages(res.messages);
+            }
+          })
+
+      }
+    }
+  }, [selectedFriend, user]);
+
+  const handleViewChange = (newView: MainViews) => {
+    setView(newView);
+  }
+
+  const handleSelectedFriendChange = (friend: UserUnpopulatedType) => {
+    setSelectedFriend(friend);
+    handleViewChange("DIRECT");
+  }
+
+  if (status === "unauthenticated" || status === "loading" || !user) {
+    return <div>Loading</div>
+  }
+
+  const handleAcceptOrDeclineFriendRequest = (friends: UserUnpopulatedType[], friendInvites: FriendInviteSchemaType[]) => {
+    setUser((prevUser) => {
+      if (prevUser) {
+        return {
+          ...prevUser,
+          friends,
+          friendInvites
+        }
+      } 
+      return undefined;
+    })
+  }
+
+  const handleNewMessage = (message: PopulatedMessageSchemaType) => {
+    setMessages((prev) => [...prev, message]);
+  }
+
+  const renderPage = () => {
+    switch (view) {
+      case "FRIENDS": 
+        return <FriendsSection handleAcceptOrDeclineFriendRequest={handleAcceptOrDeclineFriendRequest} user={user} />;
+      case "DIRECT":
+        return <DirectMessageChat handleNewMessage={handleNewMessage} messages={messages} user={user} friend={selectedFriend} />;
+      case "GROUP":
+        return <DirectMessageChat  handleNewMessage={handleNewMessage} messages={messages} user={user} friend={selectedFriend} />;
+      default:
+        return <DirectMessageChat handleNewMessage={handleNewMessage} messages={messages} user={user} friend={selectedFriend} />;
+    }
+  }
+
   return (
-    <main className={styles.main}>
-      <div className={styles.description}>
-        <p>
-          Get started by editing&nbsp;
-          <code className={styles.code}>src/app/page.tsx</code>
-        </p>
-        <div>
-          <a
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            By{" "}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className={styles.vercelLogo}
-              width={100}
-              height={24}
-              priority
-            />
-          </a>
-        </div>
-      </div>
-
-      <div className={styles.center}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
-        />
-      </div>
-
-      <div className={styles.grid}>
-        <a
-          href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Docs <span>-&gt;</span>
-          </h2>
-          <p>Find in-depth information about Next.js features and API.</p>
-        </a>
-
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Learn <span>-&gt;</span>
-          </h2>
-          <p>Learn about Next.js in an interactive course with&nbsp;quizzes!</p>
-        </a>
-
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Templates <span>-&gt;</span>
-          </h2>
-          <p>Explore starter templates for Next.js.</p>
-        </a>
-
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Deploy <span>-&gt;</span>
-          </h2>
-          <p>
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
-      </div>
-    </main>
+    <Grid 
+      as="main"
+      templateColumns="7% 17% 76%"
+    >
+      <GridItem w="100%"><GroupChat user={user} /></GridItem>
+      <GridItem w="100%" backgroundColor="#303346">
+        <Box h="5vh" position="sticky" top={0}>
+          <FindConversation />
+          <Divider />
+        </Box>
+        <Box overflowY="scroll" h="86vh">
+          <TabOption handleViewChange={handleViewChange} />
+          <DirectMessages handleSelectedFriendChange={handleSelectedFriendChange} user={user} />
+        </Box>
+        <Box h="5vh">
+          <UserAvatar />
+        </Box>
+      </GridItem>
+      <GridItem w="100%">
+        {renderPage()}
+      </GridItem>
+    </Grid>
   );
 }
