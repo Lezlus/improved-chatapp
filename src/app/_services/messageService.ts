@@ -13,7 +13,7 @@ interface CreateMessageServiceResponse {
 }
 
 class MessageService {
-  static baseUrl =  process.env.NEXT_PUBLIC_URL + "/api/messages";
+  static baseUrl ="/api/messages";
 
   static getMessagesBetweenUsers(data: { currentUser: string, nextUser: string }) {
     return fetchData<GetMessageServiceResponse>(`${this.baseUrl}/messagesBetweenUsers/${data.currentUser}-${data.nextUser}`, {

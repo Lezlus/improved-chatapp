@@ -1,6 +1,8 @@
 import { getToken } from "next-auth/jwt";
 import { NextRequest, NextResponse } from "next/server";
 export { default } from "next-auth/middleware";
+const allowedOrigins = 
+  process.env.NODE_ENV
 
 export async function middleware(req: NextRequest) {
   const path = req.nextUrl.pathname;
