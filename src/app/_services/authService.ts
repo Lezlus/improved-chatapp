@@ -3,7 +3,7 @@ import fetchData from "@/lib/fetchData";
 import { UserRegisterAndLoginType } from "../../../types/users";
 
 class AuthService {
-  static baseUrl = process.env.URL + '/api/users'
+  static baseUrl = process.env.NEXT_PUBLIC_URL + '/api/users'
 
   static login(user: UserRegisterAndLoginType): Promise<AuthResponse> {
     return fetchData<AuthResponse>(`${this.baseUrl}/login`, {

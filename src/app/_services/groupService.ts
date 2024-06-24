@@ -8,7 +8,7 @@ interface GroupServiceResponse {
 }
 
 class GroupService {
-  static baseUrl =  process.env.URL + '/api/groups'
+  static baseUrl =  process.env.NEXT_PUBLIC_URL + '/api/groups'
 
   static get(data: { name: string }): Promise<GroupServiceResponse> {
     return fetchData<GroupServiceResponse>(`${this.baseUrl}`, {

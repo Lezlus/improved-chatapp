@@ -18,7 +18,7 @@ interface GetFriendInviteServiceResponse {
 
 
 class FriendInviteService {
-  static baseUrl =  process.env.URL + '/api/friendInvites';
+  static baseUrl =  process.env.NEXT_PUBLIC_URL + '/api/friendInvites';
 
   static post(data: CreateFriendInviteSchemaType): Promise<FriendInviteServiceResponse> {
     return fetchData<FriendInviteServiceResponse>(`${this.baseUrl}`, {
