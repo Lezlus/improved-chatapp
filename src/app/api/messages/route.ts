@@ -17,7 +17,11 @@ export async function POST(request: Request) {
       pusherServer.trigger(toPusherKey(`chat:${sortObjectIds(data.senderId, data.receiverId)}`), "incoming-message", message)
 
     }
-    return NextResponse.json({ success: true, message }, { status: 201 });
+    return NextResponse.json({ success: true, message }, { status: 201, headers: {
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+      'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+    }, });
   } catch (err) {
     console.log(err);
     return NextResponse.json({ err }, { status: 404 })

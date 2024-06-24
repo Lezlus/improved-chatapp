@@ -18,7 +18,7 @@ export async function middleware(req: NextRequest) {
   if (!publicPaths && !token) {
     return NextResponse.redirect(new URL("/login", req.url));
   }
-  }
+}
 
 export const config = {
   matcher: ["/", "/register", "/login"]

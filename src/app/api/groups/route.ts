@@ -7,7 +7,11 @@ export async function GET(request: Request) {
   try {
     const data = validateGetGroupSchema(body);
     const group = await groupDAO.getGroup(data.groupName);
-    return NextResponse.json({ success: true, group }, { status: 200 });
+    return NextResponse.json({ success: true, group }, { status: 200, headers: {
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+      'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+    }, });
   } catch (err) {
     return NextResponse.json({ err }, { status: 404 });
   }
@@ -18,7 +22,11 @@ export async function POST(request: Request) {
   try {
     const data = validateCreateGroupSchema(body);
     const group = await groupDAO.createGroup(data);
-    return NextResponse.json({ success: true, group }, { status: 201 });
+    return NextResponse.json({ success: true, group }, { status: 201, headers: {
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+      'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+    }, });
   } catch (err) {
     return NextResponse.json({ err }, { status: 404 });
   }
