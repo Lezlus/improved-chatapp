@@ -1,5 +1,5 @@
 import { connect } from "../connection";
-import { CreateGroupSchemaType } from "../types/groups";
+import { CreateGroupSchemaType } from "../types/clientSchemas/groups";
 
 class GroupDAO {
   async getGroup(name: string) {

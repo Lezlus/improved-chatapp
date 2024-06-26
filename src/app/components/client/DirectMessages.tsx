@@ -19,8 +19,8 @@ import gsap from "gsap";
 import { MouseEventHandler, useRef } from "react";
 import AvatarRow from "./util/AvatarRow";
 import { useSession } from "next-auth/react";
-import { validateUsersSchema, UserType } from "../../../../types";
-import { UserUnpopulatedType } from "../../../../types/userUnpopulated";
+import { validateUsersSchema, UserType } from "../../../../types/clientSchemas";
+import { UserUnpopulatedType } from "../../../../types/clientSchemas/userUnpopulated";
 
 interface DirectMessageRowProps {
   onMouseEnter: MouseEventHandler<HTMLSpanElement>

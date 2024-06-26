@@ -1,16 +1,7 @@
 import fetchData from "@/lib/fetchData";
-import { MessageSchemaType } from "../../../types";
-import { CreateMessageSchemaType, PopulatedMessageSchemaType } from "../../../types/messages";
-
-interface GetMessageServiceResponse {
-  success: boolean;
-  messages: PopulatedMessageSchemaType[];
-}
-
-interface CreateMessageServiceResponse {
-  success: boolean;
-  message: PopulatedMessageSchemaType;
-}
+import { MessageSchemaType } from "../../../types/clientSchemas";
+import { CreateMessageSchemaType } from "../../../types/clientSchemas/messages";
+import { GetMessageServiceResponse, CreateMessageServiceResponse } from "./types/response/messages";
 
 class MessageService {
   static baseUrl ="/api/messages";

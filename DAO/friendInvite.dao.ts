@@ -1,16 +1,17 @@
 import { connect } from "../connection";
-import { CreateFriendInviteSchemaType } from "../types/friendInvites";
+import { CreateFriendInviteSchemaType } from "../types/clientSchemas/friendInvites";
 
 class FriendInviteDAO {
   // Create and push id to receiver friend invites
   async createFriendInvite(data: CreateFriendInviteSchemaType) {
     const { FriendInvites, Users } = await connect();
     const { receiver } = data;
-    const newFriendInvite = await FriendInvites.create(data);
+    const newFriendInvite = await FriendInvites.create(data)
+    const populatedFriendInvite = await newFriendInvite.populate("sender");
     await Users.findByIdAndUpdate(receiver, {
       $push: { friendInvites: newFriendInvite._id }
     });
-    return newFriendInvite;
+    return populatedFriendInvite;
   }
 
   async getOutGoingFriendInvites(data: { id: string }) {

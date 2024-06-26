@@ -25,7 +25,7 @@ import {
 import "../styles/app.scss";
 import "../styles/registerPage.scss";
 import React, { useState, FormEvent } from 'react';
-import { validateUsersSchema, validateRegisterLoginUser } from '../../../types/users';
+import { validateUsersSchema, validateRegisterLoginUser } from '../../../types/clientSchemas/users';
 import fetchData from '@/lib/fetchData';
 import AuthService from '../_services/authService';
 import { useRouter } from "next/navigation";
@@ -116,7 +116,7 @@ export default function RegisterPage() {
             <AlertTitle>{alertMsg}</AlertTitle>
           </Alert>
         }
-        <Link href="/login">{`Have an account? Login Here`}</Link>
+        <Link color='white' href="/login">{`Have an account? Login Here`}</Link>
       </Box>
     </Container>
   )

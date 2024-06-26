@@ -1,11 +1,6 @@
-import { AuthResponse, RegisterAuthResponse } from "./authTypes";
 import fetchData from "@/lib/fetchData";
-import { GroupSchemaType, CreateGroupSchemaType } from "../../../types/groups";
-
-interface GroupServiceResponse {
-  success: boolean;
-  group: GroupSchemaType
-}
+import { CreateGroupSchemaType } from "../../../types/clientSchemas/groups";
+import { GroupServiceResponse } from "./types/response/groups";
 
 class GroupService {
   static baseUrl = '/api/groups'

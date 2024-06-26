@@ -19,7 +19,7 @@ import {
   AvatarBadge
 } from '@chakra-ui/react'
 import { useSession } from 'next-auth/react';
-import { validateUsersSchema } from '../../../../types';
+import { validateUsersSchema } from '../../../../types/clientSchemas';
 
 export default function UserAvatar() {
   const { data: session, status } = useSession();

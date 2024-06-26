@@ -28,15 +28,15 @@ import {
   Container,
 } from '@chakra-ui/react'
 import NavBar from './util/NavBar';
-import { UserType } from '../../../../types';
-import { UserUnpopulatedType } from '../../../../types/userUnpopulated';
-import { PopulatedMessageSchemaType } from '../../../../types/messages';
+import { UserType } from '../../../../types/clientSchemas';
+import { UserUnpopulatedType } from '../../../../types/clientSchemas/userUnpopulated';
+import { PopulatedMessageSchemaType } from '../../../../types/clientSchemas/messages';
 import { pusherClient } from '@/lib/pusher';
 import { KeyboardEvent, useEffect, useState } from 'react';
 import { toPusherKey } from '@/lib/toPusherKey';
 import { sortObjectIds } from '@/lib/sortObjectId';
 import MessageService from '@/app/_services/messageService';
-import { CreateMessageSchemaType } from '../../../../types/messages';
+import { CreateMessageSchemaType } from '../../../../types/clientSchemas/messages';
 import { dateFormatter } from '@/lib/dateFormatter';
 
 interface DirectMessageChatProps {

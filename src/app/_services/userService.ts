@@ -1,10 +1,5 @@
 import fetchData from "@/lib/fetchData";
-import { UserUnpopulatedType } from "../../../types/userUnpopulated";
-
-interface UserServiceResponse {
-  success: boolean;
-  user: UserUnpopulatedType
-}
+import { UserServiceResponse } from "./types/response/users";
 
 class UserService {
   static baseUrl = '/api/users';

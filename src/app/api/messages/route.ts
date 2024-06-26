@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { validateCreateMessageSchema } from "../../../../types/messages";
+import { validateCreateMessageSchema } from "../../../../types/clientSchemas/messages";
 import { messageDAO } from "../../../../DAO/message.dao";
 import { pusherServer } from "@/lib/pusher";
 import { sortObjectIds } from "@/lib/sortObjectId";

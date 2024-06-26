@@ -14,6 +14,7 @@ import {
   Divider,
   Box,
   Button,
+  useToast
 } from "@chakra-ui/react";
 import GroupChat from "./components/client/GroupChat";
 import FindConversation from "./components/client/FindConversation";
@@ -22,25 +23,53 @@ import DirectMessages from "./components/client/DirectMessages";
 import UserAvatar from "./components/client/UserAvatar";
 import DirectMessageChat from "./components/client/DirectMessageChat";
 import GroupMessageChat from "./components/client/GroupMessageChat";
-import { validateUsersSchema, UserType } from "../../types";
+import { validateUsersSchema, UserType } from "../../types/clientSchemas";
 import { useEffect, useState, useRef } from "react";
 import { MainViews } from "./components/client/types";
 import FriendsSection from "./components/client/FriendsSection";
-import { UserUnpopulatedType } from "../../types/userUnpopulated";
-import { FriendInviteSchemaType } from "../../types/friendInvites";
+import { UserUnpopulatedType } from "../../types/clientSchemas/userUnpopulated";
+import { FriendInviteSchemaType } from "../../types/clientSchemas/friendInvites";
 import MessageService from "./_services/messageService";
-import { PopulatedMessageSchemaType } from "../../types/messages";
+import { PopulatedMessageSchemaType } from "../../types/clientSchemas/messages";
+import { pusherClient } from "@/lib/pusher";
+import { toPusherKey } from "@/lib/toPusherKey";
+
 export default function Home() {
   const { data: session, status, update } = useSession();
+  const toast = useToast();
   const [view, setView] = useState<MainViews>("DIRECT")
   const [user, setUser] = useState<UserType>();
   const [selectedFriend, setSelectedFriend] = useState<UserUnpopulatedType>();
   const [messages, setMessages] = useState<PopulatedMessageSchemaType[]>([]);
+  const [friendInvites, setFriendInvites] = useState<FriendInviteSchemaType[]>([]);
 
   useEffect(() => {
     if (session?.user) {
-      console.log("called");
-      setUser(validateUsersSchema(session?.user));
+      const user = validateUsersSchema(session?.user);
+      setUser(user);
+      setFriendInvites(user.friendInvites);
+
+      pusherClient.subscribe(toPusherKey(`friendInvite:${user.id}`))
+      console.log("connected to channel ", toPusherKey(`friendInvite:${user.id}`))
+
+      const friendInviteHandler = (friendInvite: FriendInviteSchemaType) => {
+        console.log("Friend Invite Even Called", friendInvite);
+        toast({
+          title: "Incoming Friend Request",
+          description: `${friendInvite.sender.username} sent a friend request`,
+          status: "success",
+          duration: 3000,
+          isClosable: true,
+        })
+        setFriendInvites((prev) => [...prev, friendInvite]);
+      }
+
+      pusherClient.bind("incoming-friendinvite", friendInviteHandler);
+      return () => {
+        pusherClient.unsubscribe(toPusherKey(`friendInvite:${user.id}`));
+        pusherClient.unbind("incoming-friendinvite", friendInviteHandler);
+      }
+
     }
   }, [session?.user])
 
@@ -72,6 +101,7 @@ export default function Home() {
   }
 
   const handleAcceptOrDeclineFriendRequest = (friends: UserUnpopulatedType[], friendInvites: FriendInviteSchemaType[]) => {
+    
     setUser((prevUser) => {
       if (prevUser) {
         return {
@@ -86,6 +116,10 @@ export default function Home() {
 
   const handleNewMessage = (message: PopulatedMessageSchemaType) => {
     setMessages((prev) => [...prev, message]);
+  }
+
+  const handleNewFriendInvite = (friendInvite: FriendInviteSchemaType) => {
+    setFriendInvites((prev) => [...prev, friendInvite]);
   }
 
   const renderPage = () => {

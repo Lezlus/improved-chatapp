@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { friendInviteDAO } from "../../../../../DAO/friendInvite.dao";
-import { validateGetFriendInviteSchema } from "../../../../../types/friendInvites";
+import { validateGetFriendInviteSchema } from "../../../../../types/clientSchemas/friendInvites";
 
 export async function GET(request: Request) {
   const body = await request.json();

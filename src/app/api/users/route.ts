@@ -1,6 +1,6 @@
 import { userDAO } from "../../../../DAO/user.dao";
 import { NextResponse } from "next/server";
-import { validateGetUserSchema } from "../../../../types/users";
+import { validateGetUserSchema } from "../../../../types/clientSchemas/users";
 
 export async function GET(request: Request) {
   console.log("ran /user")

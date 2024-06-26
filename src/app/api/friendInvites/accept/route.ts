@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { validateUpdateFriendInviteSchema } from "../../../../../types/friendInvites";
+import { validateUpdateFriendInviteSchema } from "../../../../../types/clientSchemas/friendInvites";
 import { friendInviteDAO } from "../../../../../DAO/friendInvite.dao";
 
 export async function POST(request: Request) {

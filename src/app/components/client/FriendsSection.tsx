@@ -33,12 +33,12 @@ import NavBar from "./util/NavBar";
 import AvatarRow from "./util/AvatarRow";
 import { useSession } from "next-auth/react";
 import { FaUserFriends } from "react-icons/fa";
-import { validateUsersSchema, UserType } from "../../../../types";
+import { validateUsersSchema, UserType } from "../../../../types/clientSchemas";
 import FriendInviteService from "@/app/_services/friendInviteService";
 import UserService from "@/app/_services/userService";
-import { FriendInviteSchemaType, OutGoingFriendInviteSchemaType } from "../../../../types/friendInvites";
+import { FriendInviteSchemaType, OutGoingFriendInviteSchemaType } from "../../../../types/clientSchemas/friendInvites";
 import { MainViews } from "./types";
-import { UserUnpopulatedType } from "../../../../types/userUnpopulated";
+import { UserUnpopulatedType } from "../../../../types/clientSchemas/userUnpopulated";
 
 // interface FriendsOptionProps {
 //   handleViewChange: (newView: MainViews) => void;

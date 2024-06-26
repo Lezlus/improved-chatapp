@@ -1,5 +1,4 @@
-import { UserType } from "../../../../types/users";
-
+import { UserType } from "../../../../../types/clientSchemas";
 export interface AuthResponse {
   isAuthenticated: boolean;
   user: UserType | null;

@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { groupDAO } from "../../../../DAO/group.dao";
-import { validateCreateGroupSchema, validateGetGroupSchema } from "../../../../types/groups";
+import { validateCreateGroupSchema, validateGetGroupSchema } from "../../../../types/clientSchemas/groups";
 
 export async function GET(request: Request) {
   const body = await request.json();

@@ -1,21 +1,6 @@
 import fetchData from "@/lib/fetchData";
-import { CreateFriendInviteSchemaType, OutGoingFriendInviteSchemaType, UpdateFriendInviteSchemaType } from "../../../types/friendInvites";
-import { UserUnpopulatedType } from "../../../types/userUnpopulated";
-import { FriendInviteSchemaType } from "../../../types/friendInvites";
-
-interface FriendInviteServiceResponse {
-  success: boolean;
-  err?: Error;
-  friends?: UserUnpopulatedType[];
-  friendInvites?: FriendInviteSchemaType[];
-}
-
-interface GetFriendInviteServiceResponse {
-  success: boolean;
-  outGoingFriendInvites: OutGoingFriendInviteSchemaType[]
-}
-
-
+import { CreateFriendInviteSchemaType, UpdateFriendInviteSchemaType } from "../../../types/clientSchemas";
+import { FriendInviteServiceResponse, GetOutgoingFriendInviteServiceResponse } from "./types/response/friendInvites";
 
 class FriendInviteService {
   static baseUrl ='/api/friendInvites';
@@ -28,12 +13,16 @@ class FriendInviteService {
     })
   }
 
-  static getOutgoing(data: { id: string }): Promise<GetFriendInviteServiceResponse> {
-    return fetchData<GetFriendInviteServiceResponse>(`${this.baseUrl}/outgoing/${data.id}`, {
+  static getOutgoing(data: { id: string }): Promise<GetOutgoingFriendInviteServiceResponse> {
+    return fetchData<GetOutgoingFriendInviteServiceResponse>(`${this.baseUrl}/outgoing/${data.id}`, {
       method: "GET",
       credentials: "include",
     })
   }
+
+  // static getIncoming(data: { id: string }): Promise<GetIncomingFriendInvites> {
+  //   return fetchData<GetIncomingFriendInvites>(`${this.baseUrl}/`)
+  // } 
 
   static acceptFriendInvite(data: UpdateFriendInviteSchemaType): Promise<FriendInviteServiceResponse> {
     return fetchData<FriendInviteServiceResponse>(`${this.baseUrl}/accept`, {

@@ -28,7 +28,7 @@ import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { MouseEventHandler, useRef, useState } from "react";
 import { useSession } from "next-auth/react";
-import { validateUsersSchema, UserType } from "../../../../types";
+import { validateUsersSchema, UserType } from "../../../../types/clientSchemas";
 import { useDisclosure } from "@chakra-ui/react";
 import GroupService from "@/app/_services/groupService";
 import { v4 as uuidv4 } from 'uuid';

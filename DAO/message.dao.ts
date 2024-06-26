@@ -1,6 +1,6 @@
 import { connect } from '../connection';
-import { CreateMessageReceiptSchemaType } from '../types/messageReceipts';
-import { CreateMessageSchemaType } from '../types/messages';
+import { CreateMessageReceiptSchemaType } from '../types/clientSchemas/messageReceipts';
+import { CreateMessageSchemaType } from '../types/clientSchemas/messages';
 
 class MessageDAO {
   async getMessagesBetweenUsers(currentUser: string, nextUser: string) {

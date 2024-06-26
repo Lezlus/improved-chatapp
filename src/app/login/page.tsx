@@ -23,9 +23,8 @@ import {
   InputRightElement,
 } from '@chakra-ui/react';
 import React, { useState, FormEvent } from 'react';
-import { validateUsersSchema, validateRegisterLoginUser } from '../../../types/users';
+import { validateUsersSchema, validateRegisterLoginUser } from '../../../types/clientSchemas/users';
 import fetchData from '@/lib/fetchData';
-import AuthService from '../_services/authService';
 import { useRouter } from 'next/navigation';
 import sleep from '@/lib/sleep';
 import { signIn } from 'next-auth/react';
@@ -113,7 +112,7 @@ export default function LoginPage() {
             <AlertTitle>{alertMsg}</AlertTitle>
           </Alert>
         }
-        <Link href="/register">{`Don't Have an account? Register Here`}</Link>
+        <Link color="white" href="/register">{`Don't Have an account? Register Here`}</Link>
       </Box>
     </Container>
   )
