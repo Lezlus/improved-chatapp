@@ -1,18 +1,18 @@
 import { groupMembershipsSchema } from "./groupMemberships";
+import { userUnpopulatedSchema } from "./userUnpopulated";
 import { z } from 'zod';
-import { validateSchemaData } from ".";
 
 export const groupsSchema = z.object({
   _id: z.string(),
   groupName: z.string(),
-  createdBy: z.string(),
+  createdBy: userUnpopulatedSchema,
   createdAt: z.string(),
   updatedAt: z.string(),
   groupMemberships: groupMembershipsSchema.array()
 })
 
 const createGroupSchema = z.object({
-  groupName: z.string().min(3),
+  groupName: z.string().regex(new RegExp("^[a-zA-Z](\\w|\\s){2,20}$")),
   createdBy: z.string(),
   groupMemberships: z.string().array(),
 }); 
@@ -22,7 +22,7 @@ const getGroupSchema = z.object({
 })
 
 export const validateCreateGroupSchema = (input: any) => {
-  return createGroupSchema.parse(input);
+  return createGroupSchema.safeParseAsync(input);
 }
 
 export const validateGetGroupSchema = (input: any) => {

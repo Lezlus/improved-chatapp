@@ -23,16 +23,18 @@ import DirectMessages from "./components/client/DirectMessages";
 import UserAvatar from "./components/client/UserAvatar";
 import DirectMessageChat from "./components/client/DirectMessageChat";
 import GroupMessageChat from "./components/client/GroupMessageChat";
-import { validateUsersSchema, UserType } from "../../types/clientSchemas";
+import { validateUsersSchema, UserType, GroupSchemaType, GroupChatInviteSchemaType, GroupMembershipType } from "../../types/clientSchemas";
 import { useEffect, useState, useRef } from "react";
 import { MainViews } from "./components/client/types";
 import FriendsSection from "./components/client/FriendsSection";
 import { UserUnpopulatedType } from "../../types/clientSchemas/userUnpopulated";
 import { FriendInviteSchemaType } from "../../types/clientSchemas/friendInvites";
 import MessageService from "./_services/messageService";
-import { PopulatedMessageSchemaType } from "../../types/clientSchemas/messages";
+import { DirectMessageSchemaType, GroupMessageSchemaType } from "../../types/clientSchemas";
 import { pusherClient } from "@/lib/pusher";
 import { toPusherKey } from "@/lib/toPusherKey";
+import { pusherFriendInviteChannelName, FriendInviteEvents, pusherGroupChatInviteChannelName, GroupChatInviteEvents } from "../../types/pusher";
+import GroupService from "./_services/groupService";
 
 export default function Home() {
   const { data: session, status, update } = useSession();
@@ -40,20 +42,19 @@ export default function Home() {
   const [view, setView] = useState<MainViews>("DIRECT")
   const [user, setUser] = useState<UserType>();
   const [selectedFriend, setSelectedFriend] = useState<UserUnpopulatedType>();
-  const [messages, setMessages] = useState<PopulatedMessageSchemaType[]>([]);
-  const [friendInvites, setFriendInvites] = useState<FriendInviteSchemaType[]>([]);
+  const [messages, setMessages] = useState<DirectMessageSchemaType[]>([]);
+  const [selectedGroupChat, setSelectedGroupChat] = useState<GroupSchemaType>();
+  const [groupChatMessages, setGroupChatMessages] = useState<GroupMessageSchemaType[]>([]);
 
   useEffect(() => {
     if (session?.user) {
       const user = validateUsersSchema(session?.user);
       setUser(user);
-      setFriendInvites(user.friendInvites);
 
-      pusherClient.subscribe(toPusherKey(`friendInvite:${user.id}`))
-      console.log("connected to channel ", toPusherKey(`friendInvite:${user.id}`))
+      pusherClient.subscribe(pusherFriendInviteChannelName(user.id));
+      pusherClient.subscribe(pusherGroupChatInviteChannelName(user.id));
 
       const friendInviteHandler = (friendInvite: FriendInviteSchemaType) => {
-        console.log("Friend Invite Even Called", friendInvite);
         toast({
           title: "Incoming Friend Request",
           description: `${friendInvite.sender.username} sent a friend request`,
@@ -61,17 +62,64 @@ export default function Home() {
           duration: 3000,
           isClosable: true,
         })
-        setFriendInvites((prev) => [...prev, friendInvite]);
+        setUser((prev) => {
+          if (prev) {
+            const newFriendInvites = [...prev.friendInvites, friendInvite];
+            return {
+              ...prev,
+              friendInvites: newFriendInvites
+            }
+          }
+          return undefined;
+        })
       }
 
-      pusherClient.bind("incoming-friendinvite", friendInviteHandler);
+      const groupChatInviteHandler = (groupChatInvite: GroupChatInviteSchemaType) => {
+        toast({
+          title: "Incoming Group Invite",
+          description: `Invite to join ${groupChatInvite.group.groupName}`,
+          status: "success",
+          duration: 3000,
+          isClosable: true,
+        })
+        setUser((prev) => {
+          if (prev) {
+            const newGroupChatInvites = [...prev.groupChatInvites, groupChatInvite];
+            return {
+              ...prev,
+              groupChatInvites: newGroupChatInvites
+            }
+          }
+          return undefined;
+        })
+      }
+
+      const friendInviteAcceptedHandler = (friend: UserUnpopulatedType) => {
+        setUser((prev) => {
+          if (prev) {
+            const newFriends = [...prev.friends, friend];
+            return {
+              ...prev,
+              friends: newFriends
+            }
+          } 
+          return undefined;
+        })
+      }
+
+      pusherClient.bind(GroupChatInviteEvents.InviteIncoming, groupChatInviteHandler);
+      pusherClient.bind(FriendInviteEvents.Incoming, friendInviteHandler);
+      pusherClient.bind(FriendInviteEvents.Accepted, friendInviteAcceptedHandler);
       return () => {
-        pusherClient.unsubscribe(toPusherKey(`friendInvite:${user.id}`));
-        pusherClient.unbind("incoming-friendinvite", friendInviteHandler);
+        pusherClient.unsubscribe(pusherFriendInviteChannelName(user.id));
+        pusherClient.unsubscribe(pusherGroupChatInviteChannelName(user.id));
+        pusherClient.unbind(GroupChatInviteEvents.InviteIncoming, groupChatInviteHandler);
+        pusherClient.unbind(FriendInviteEvents.Incoming, friendInviteHandler);
+        pusherClient.unbind(FriendInviteEvents.Accepted, friendInviteAcceptedHandler);
       }
 
     }
-  }, [session?.user])
+  }, [session?.user, toast])
 
   useEffect(() => {
     if (selectedFriend) {
@@ -87,6 +135,19 @@ export default function Home() {
     }
   }, [selectedFriend, user]);
 
+  useEffect(() => {
+    if (selectedGroupChat) {
+      if (user) {
+        GroupService.getMessages({ id: selectedGroupChat._id })
+          .then(res => {
+            if (res.success) {
+              setGroupChatMessages(res.messages);
+            }
+          })
+      }
+    }
+  }, [selectedGroupChat, user])
+
   const handleViewChange = (newView: MainViews) => {
     setView(newView);
   }
@@ -96,12 +157,34 @@ export default function Home() {
     handleViewChange("DIRECT");
   }
 
+  const handleSelectedGroupChatChange = async (groupChat: GroupSchemaType) => {
+    // Bad solution but in order to show new added users refetch fresh data
+    const res = await GroupService.get({ name: groupChat.groupName });
+    if (res.success) {
+      setSelectedGroupChat(res.group);
+      handleViewChange("GROUP");
+    }
+  }
+
+  const handleAddGroupMember = (groupMember: GroupMembershipType) => {
+    setSelectedGroupChat(prev => {
+      if (prev) {
+        const updatedGroupMemberships = [...prev.groupMemberships, groupMember];
+        return {
+          ...prev,
+          groupMemberships: updatedGroupMemberships
+        }
+      } 
+      return undefined;
+    })
+  }
+
   if (status === "unauthenticated" || status === "loading" || !user) {
     return <div>Loading</div>
   }
 
   const handleAcceptOrDeclineFriendRequest = (friends: UserUnpopulatedType[], friendInvites: FriendInviteSchemaType[]) => {
-    
+
     setUser((prevUser) => {
       if (prevUser) {
         return {
@@ -114,22 +197,49 @@ export default function Home() {
     })
   }
 
-  const handleNewMessage = (message: PopulatedMessageSchemaType) => {
+  const handleNewMessage = (message: DirectMessageSchemaType) => {
     setMessages((prev) => [...prev, message]);
   }
 
-  const handleNewFriendInvite = (friendInvite: FriendInviteSchemaType) => {
-    setFriendInvites((prev) => [...prev, friendInvite]);
+  const handleNewGroupChatMessage = (message: GroupMessageSchemaType) => {
+    setGroupChatMessages((prev) => [...prev, message]);
+  }
+
+  const handleNewGroupChat = (groupChat: GroupSchemaType) => {
+    setUser((prevUser) => {
+      if (prevUser) {
+        const groupChats = [...prevUser.groups, groupChat];
+        return {
+          ...prevUser,
+          groups: groupChats
+        }
+      } 
+      return undefined
+    })
+  }
+
+  const acceptOrDeclineGroupChatInvite = (groupChatInvite: GroupChatInviteSchemaType) => {
+    setUser((prevUser) => {
+      if (prevUser) {
+        const groupChatInvites = prevUser.groupChatInvites.filter((invite) => invite._id != groupChatInvite._id);
+        return {
+          ...prevUser,
+          groupChatInvites,
+        }
+      }
+      return undefined
+    })
   }
 
   const renderPage = () => {
     switch (view) {
       case "FRIENDS": 
-        return <FriendsSection handleAcceptOrDeclineFriendRequest={handleAcceptOrDeclineFriendRequest} user={user} />;
+        return <FriendsSection handleAcceptOrDeclineGroupChatInvite={acceptOrDeclineGroupChatInvite} handleNewGroupChat={handleNewGroupChat} handleAcceptOrDeclineFriendRequest={handleAcceptOrDeclineFriendRequest} user={user} />;
       case "DIRECT":
         return <DirectMessageChat handleNewMessage={handleNewMessage} messages={messages} user={user} friend={selectedFriend} />;
       case "GROUP":
-        return <DirectMessageChat  handleNewMessage={handleNewMessage} messages={messages} user={user} friend={selectedFriend} />;
+        return <GroupMessageChat handleAddGroupMember={handleAddGroupMember} user={user} selectedGroupChat={selectedGroupChat} messages={groupChatMessages} handleNewGroupChatMessage={handleNewGroupChatMessage}  />;
+        
       default:
         return <DirectMessageChat handleNewMessage={handleNewMessage} messages={messages} user={user} friend={selectedFriend} />;
     }
@@ -140,10 +250,16 @@ export default function Home() {
       as="main"
       templateColumns="7% 17% 76%"
     >
-      <GridItem w="100%"><GroupChat user={user} /></GridItem>
+      <GridItem w="100%">
+        <GroupChat 
+          handleNewGroupChat={handleNewGroupChat}
+          user={user} 
+          handleSelectedGroupChatChange={handleSelectedGroupChatChange}
+        />
+        </GridItem>
       <GridItem w="100%" backgroundColor="#303346">
         <Box h="5vh" position="sticky" top={0}>
-          <FindConversation />
+          <FindConversation user={user} handleSelectedFriendChange={handleSelectedFriendChange} />
           <Divider />
         </Box>
         <Box overflowY="scroll" h="86vh">

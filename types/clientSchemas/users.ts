@@ -35,7 +35,7 @@ export const validateUsersSchema = (input: any) => {
 }
 
 export const validateRegisterLoginUser = (input: any) => {
-  return UserLoginRegistrationSchema.parse(input);
+  return UserLoginRegistrationSchema.safeParseAsync(input);
 }
 
 export const validateGetUserSchema = (input: any) => {

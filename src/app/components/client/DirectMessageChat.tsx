@@ -30,7 +30,7 @@ import {
 import NavBar from './util/NavBar';
 import { UserType } from '../../../../types/clientSchemas';
 import { UserUnpopulatedType } from '../../../../types/clientSchemas/userUnpopulated';
-import { PopulatedMessageSchemaType } from '../../../../types/clientSchemas/messages';
+import { DirectMessageSchemaType } from '../../../../types/clientSchemas/messages';
 import { pusherClient } from '@/lib/pusher';
 import { KeyboardEvent, useEffect, useState } from 'react';
 import { toPusherKey } from '@/lib/toPusherKey';
@@ -38,38 +38,20 @@ import { sortObjectIds } from '@/lib/sortObjectId';
 import MessageService from '@/app/_services/messageService';
 import { CreateMessageSchemaType } from '../../../../types/clientSchemas/messages';
 import { dateFormatter } from '@/lib/dateFormatter';
+import ChatMessage from './util/ChatMessage';
+import { pusherDirectMessageChannelName, DirectMessageEvents } from '../../../../types/pusher';
 
 interface DirectMessageChatProps {
   user: UserType;
   friend?: UserUnpopulatedType;
-  messages: PopulatedMessageSchemaType[];
-  handleNewMessage: (message: PopulatedMessageSchemaType) => void;
+  messages: DirectMessageSchemaType[];
+  handleNewMessage: (message: DirectMessageSchemaType) => void;
 }
 
 interface ChatWindowProps {
-  messages: PopulatedMessageSchemaType[];
+  messages: DirectMessageSchemaType[];
   friend: UserUnpopulatedType;
   user: UserType;
-}
-
-interface ChatMessageProps {
-  message: PopulatedMessageSchemaType;
-}
-
-const ChatMessage = (props: ChatMessageProps) => {
-  const { message } = props;
-  return (
-    <HStack p="1em">
-      <Avatar name={`${message.senderId.username}`} />
-      <VStack align="start" spacing={0}>
-        <HStack>
-          <Text fontWeight="bold" color="white">{message.senderId.username}</Text>
-          <Text fontSize="sm" color="gray.400">{dateFormatter(message.createdAt)}</Text>
-        </HStack>
-        <Text color="gray.300">{message.content}</Text>
-      </VStack>
-    </HStack>
-  )
 }
 
 const ChatWindow = (props: ChatWindowProps) => {
@@ -85,7 +67,10 @@ const ChatWindow = (props: ChatWindowProps) => {
           receiverId: friend._id,
           content: value
         }
-        await MessageService.create(data)
+        const res =  await MessageService.create(data)
+        if (res.success) {
+          setValue("");
+        }
       }
     }
   }
@@ -120,18 +105,18 @@ export default function DirectMessageChat(props: DirectMessageChatProps) {
 
   useEffect(() => {
     if (friend) {
-      pusherClient.subscribe(toPusherKey(`chat:${sortObjectIds(user.id, friend._id)}`));
-      console.log("connected to channel ", toPusherKey(`chat:${sortObjectIds(user.id, friend._id)}`))
-      const messageHandler = (message: PopulatedMessageSchemaType) => {
+      pusherClient.subscribe(pusherDirectMessageChannelName(user.id, friend._id));
+      console.log("connected to channel ", pusherDirectMessageChannelName(user.id, friend._id))
+      const messageHandler = (message: DirectMessageSchemaType) => {
         console.log("EVENT CALLED", message);
         handleNewMessage(message);
       }
 
-      pusherClient.bind("incoming-message", messageHandler);
+      pusherClient.bind(DirectMessageEvents.Incoming, messageHandler);
 
       return () => {
-        pusherClient.unsubscribe(toPusherKey(`chat:${sortObjectIds(user.id, friend._id)}`));
-        pusherClient.unbind("incoming-message", messageHandler);
+        pusherClient.unsubscribe(pusherDirectMessageChannelName(user.id, friend._id));
+        pusherClient.unbind(DirectMessageEvents.Incoming, messageHandler);
       }
     }
 

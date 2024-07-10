@@ -31,7 +31,7 @@ class MessageDAO {
       }, { new: true }).populate("messageReceipt").populate("senderId");
       return message;
     } else {
-      const newMessage = await Messages.create(data);
+      const newMessage = (await Messages.create(data)).populate("senderId");
       return newMessage;
     }
   }

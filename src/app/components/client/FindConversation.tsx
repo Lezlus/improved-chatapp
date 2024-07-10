@@ -16,39 +16,43 @@ import {
   HStack,
   Avatar,
 } from '@chakra-ui/react'
+import { UserType, UserUnpopulatedType } from '../../../../types/clientSchemas';
 
-interface Friend {
-  name: string;
-  id: string;
+interface FindConversationProps {
+  user: UserType;
+  handleSelectedFriendChange: (friend: UserUnpopulatedType) => void;
 }
 
-const friends: Friend[] = [
-  {name: "Rafael B", id: '1'},
-  {name: "Vic B", id: '2'},
-  { name: "Sarah E", id: '3' },
-  { name: "Mary T", id: '4' },
-  { name: "Adonis Y", id: '5' },
-  { name: "Gary D", id: '8' }
-]
+interface FriendAvatarProps {
+  friend: UserUnpopulatedType;
+  handleSelectedFriendChange: (friend: UserUnpopulatedType) => void;
+  handleModalClose: () => void;
+}
 
-const FriendAvatar = (props: { friend: Friend }) => {
+const FriendAvatar = (props: FriendAvatarProps) => {
+  const { friend, handleSelectedFriendChange, handleModalClose } = props;
   return (
-    <HStack padding="0.3em" width="100%"  cursor="pointer" _hover={{ backgroundColor: "#202225" }}>
+    <HStack onClick={(e) => {handleSelectedFriendChange(friend), handleModalClose()} } padding="0.3em" width="100%"  cursor="pointer" _hover={{ backgroundColor: "#202225" }}>
       <Box>
         <Avatar 
-          name={props.friend.name}
+          name={friend.username}
           size="xs"
         />
       </Box>
       <Box color="GrayText">
-        <Text fontSize='xs'>{props.friend.name}</Text>
+        <Text fontSize='xs'>{friend.username}</Text>
       </Box>
     </HStack>
   )
 }
 
-export default function FindConversation() {
+export default function FindConversation(props: FindConversationProps) {
+  const { user, handleSelectedFriendChange } = props;
   const { isOpen, onOpen, onClose } = useDisclosure();
+
+  const handleModalClose = () => {
+    onClose();
+  }
 
   return (
     <Box marginBlock="0.5em">
@@ -67,8 +71,8 @@ export default function FindConversation() {
             <Box>
               <Heading as="h3" size="sm" color="GrayText">Friends</Heading>
               <VStack spacing={0} marginTop={2} overflowY="scroll" maxHeight="170px"  alignItems="flex-start">
-                {friends.map((friend) => {
-                  return <FriendAvatar key={friend.id} friend={friend} />;
+                {user.friends.map((friend) => {
+                  return <FriendAvatar handleModalClose={handleModalClose} handleSelectedFriendChange={handleSelectedFriendChange} key={friend._id} friend={friend} />;
                 })}
               </VStack>
             </Box>

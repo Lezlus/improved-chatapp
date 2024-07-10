@@ -7,8 +7,8 @@ class UserDAO {
       .populate([
         { path: "messages", populate: "messageReceipt" },
         { path: "friendInvites", populate: "sender" },
-        { path: "groupChatInvites", populate: "group" },
-        { path: "groups", populate: { path: "groupMemberships", populate: "user" } },
+        { path: "groupChatInvites", populate: [{ path: "group", populate: [{ path: "groupMemberships", populate: "user" }, { path: "createdBy" }] }] },
+        { path: "groups", populate: [{ path: "groupMemberships", populate: "user" }, { path: "createdBy" }] },
         { path: "friends" },
       ])
     if (!user) {
@@ -23,8 +23,8 @@ class UserDAO {
       .populate([
         { path: "messages", populate: "messageReceipt" },
         { path: "friendInvites", populate: "sender" },
-        { path: "groupChatInvites", populate: "group" },
-        { path: "groups", populate: { path: "groupMemberships", populate: "user" } },
+        { path: "groupChatInvites", populate: [{ path: "group", populate: [{ path: "groupMemberships", populate: "user" }, { path: "createdBy" }] }] },
+        { path: "groups", populate: [{ path: "groupMemberships", populate: "user" }, { path: "createdBy" }] },
         { path: "friends" },
       ])
     return user;
@@ -33,6 +33,12 @@ class UserDAO {
   async getUserByUsernameUnPopulated(username: string) {
     const { Users } = await connect();
     const user = await Users.findOne({username})
+    return user;
+  }
+
+  async getUserByIdUnpopulated(id: string) {
+    const { Users } = await connect()  
+    const user = await Users.findById(id);
     return user;
   }
 }

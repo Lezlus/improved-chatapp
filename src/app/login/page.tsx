@@ -87,12 +87,11 @@ export default function LoginPage() {
       <Box className="register__box">
         <Heading>Login</Heading>
         <form onSubmit={onSubmit}>
-          <FormControl isRequired className="form__control">
+          <FormControl mb={2} isRequired className="form__control">
             <FormLabel>Username</FormLabel>
             <Input backgroundColor="white" name='username' type="text" />
-            <FormHelperText>Must Be Greater than 1 character</FormHelperText>
           </FormControl>
-          <FormControl isRequired className="form__control">
+          <FormControl mb={2} isRequired className="form__control">
             <FormLabel>Password</FormLabel>
             <InputGroup>
               <Input type={showPassword ? "text" : "password"} backgroundColor="white" name='password' />
@@ -102,7 +101,6 @@ export default function LoginPage() {
                 </Button>
               </InputRightElement>
             </InputGroup>
-            <FormHelperText>Must Be Greater then 5 characters</FormHelperText>
           </FormControl>
           <Button colorScheme="blue" type='submit'>Submit</Button>
         </form>

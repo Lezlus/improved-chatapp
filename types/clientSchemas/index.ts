@@ -22,7 +22,8 @@ export {
   validateGetGroupSchema
 } from "./groups"
 export { 
-  type GroupMembershipType
+  type GroupMembershipType,
+  type CreateGroupMembershipType,
 } from './groupMemberships'
 export { 
   type MessageReceiptSchemaType, 
@@ -31,12 +32,16 @@ export {
 } from './messageReceipts'
 export { 
   type MessageSchemaType, 
-  type PopulatedMessageSchemaType,
+  type DirectMessageSchemaType,
   type CreateMessageSchemaType,
+  type GroupMessageSchemaType,
   validateCreateMessageSchema,
 } from './messages'
 export { 
   type GroupChatInviteSchemaType,
+  type CreateGroupChatInviteSchemaType,
+  validateCreateGroupChatInviteSchema,
+  validateGroupChatInviteSchema,
 } from './groupChatInvites'
 export { 
   validateCreteFriendInviteSchema,

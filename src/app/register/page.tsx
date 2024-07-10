@@ -51,7 +51,6 @@ interface RegisterFormElement extends HTMLFormElement {
 export default function RegisterPage() {
   const router = useRouter();
 
-  const [registerFormValid, setRegisterFormValid] = useState(false);
   const [isError, setIsError] = useState(false);
   const [showAlert, setShowAlert] = useState(false);
   const [alertMsg, setAlertMsg] = useState("");
@@ -59,15 +58,14 @@ export default function RegisterPage() {
 
   async function onSubmit(event: FormEvent<RegisterFormElement>) {
     event.preventDefault();
-    try {
-      const newUser: RegisterFormType = {
-        username: event.currentTarget.elements.username.value,
-        password: event.currentTarget.elements.password.value
-      }
+    const newUser: RegisterFormType = {
+      username: event.currentTarget.elements.username.value,
+      password: event.currentTarget.elements.password.value
+    }
 
-      const validNewUser = validateRegisterLoginUser(newUser);
-
-      let res = await AuthService.register(validNewUser);
+    const {success, data, error} = await validateRegisterLoginUser(newUser);
+    if (success) {
+      let res = await AuthService.register(data);
       if (res.message.userTaken) {
         setIsError(true);
         setAlertMsg("User Taken");
@@ -78,8 +76,7 @@ export default function RegisterPage() {
         await sleep(1000);
         router.push("/login");
       }
-    } catch (e) {
-      console.log(e);
+    } else {
       setIsError(true);
       setShowAlert(true);
       setAlertMsg("Either Username or password too short")
@@ -91,12 +88,12 @@ export default function RegisterPage() {
       <Box className="register__box">
         <Heading>Register</Heading>
         <form onSubmit={onSubmit}>
-          <FormControl isRequired className="form__control">
+          <FormControl mb={2} isRequired className="form__control">
             <FormLabel>Username</FormLabel>
             <Input backgroundColor="white" name='username' type="text" />
-            <FormHelperText>Must Be Greater than 3 character</FormHelperText>
+            <FormHelperText>Must Be Greater than 3 characters</FormHelperText>
           </FormControl>
-          <FormControl isRequired className="form__control">
+          <FormControl mb={2} isRequired className="form__control">
             <FormLabel>Password</FormLabel>
             <InputGroup size="md">
               <Input backgroundColor="white" name='password' type={showPassword ? "text" : "password"}  />

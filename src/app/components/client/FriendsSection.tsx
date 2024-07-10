@@ -33,9 +33,10 @@ import NavBar from "./util/NavBar";
 import AvatarRow from "./util/AvatarRow";
 import { useSession } from "next-auth/react";
 import { FaUserFriends } from "react-icons/fa";
-import { validateUsersSchema, UserType } from "../../../../types/clientSchemas";
+import { validateUsersSchema, UserType, GroupSchemaType, GroupChatInviteSchemaType } from "../../../../types/clientSchemas";
 import FriendInviteService from "@/app/_services/friendInviteService";
 import UserService from "@/app/_services/userService";
+import GroupChatInviteService from "@/app/_services/groupChatInviteService";
 import { FriendInviteSchemaType, OutGoingFriendInviteSchemaType } from "../../../../types/clientSchemas/friendInvites";
 import { MainViews } from "./types";
 import { UserUnpopulatedType } from "../../../../types/clientSchemas/userUnpopulated";
@@ -47,11 +48,15 @@ import { UserUnpopulatedType } from "../../../../types/clientSchemas/userUnpopul
 interface FriendsSectionProps {
   user: UserType;
   handleAcceptOrDeclineFriendRequest: (friends: UserUnpopulatedType[], friendInvites: FriendInviteSchemaType[]) => void;
+  handleNewGroupChat: (groupChat: GroupSchemaType) => void;
+  handleAcceptOrDeclineGroupChatInvite: (groupChatInvite: GroupChatInviteSchemaType) => void;
 
 }
 
 interface PendingTabProps {
   user: UserType;
+  handleNewGroupChat: (groupChat: GroupSchemaType) => void;
+  handleAcceptOrDeclineGroupChatInvite: (groupChatInvite: GroupChatInviteSchemaType) => void;
   handleAcceptOrDeclineFriendRequest: (friends: UserUnpopulatedType[], friendInvites: FriendInviteSchemaType[]) => void;
 }
 
@@ -119,8 +124,7 @@ const AllTab = (props: AllTabProps) => {
 }
 
 const PendingTab = (props: PendingTabProps) => {
-  const { handleAcceptOrDeclineFriendRequest, user } = props;
-  const { update } = useSession();
+  const { handleAcceptOrDeclineFriendRequest, user, handleAcceptOrDeclineGroupChatInvite, handleNewGroupChat } = props;
 
   const [outgoingInvites, setOutgoingInvites] = useState<OutGoingFriendInviteSchemaType[]>([]);
   useEffect(() => {
@@ -155,6 +159,21 @@ const PendingTab = (props: PendingTabProps) => {
     }
   }
 
+  const acceptGroupChatInvite = async (groupChatInvite: GroupChatInviteSchemaType) => {
+    const res = await GroupChatInviteService.accept(groupChatInvite);
+    if (res.success) {
+      handleAcceptOrDeclineGroupChatInvite(groupChatInvite);
+      handleNewGroupChat(res.group);
+    }
+  }
+
+  const declineGroupChatInvite = async (groupChatInvite: GroupChatInviteSchemaType) => {
+    const res = await GroupChatInviteService.decline(groupChatInvite);
+    if (res.success) {
+      handleAcceptOrDeclineGroupChatInvite(groupChatInvite);
+    }
+  }
+
   return (
     <Container>
       <Box>
@@ -165,6 +184,7 @@ const PendingTab = (props: PendingTabProps) => {
           <TabList color="white">
             <Tab>Incoming</Tab>
             <Tab>Outgoing</Tab>
+            <Tab>Group Invites</Tab>
           </TabList>
           <TabPanels>
             <TabPanel>
@@ -242,10 +262,49 @@ const PendingTab = (props: PendingTabProps) => {
                           </HStack>
                         </Box>
                         <Box>
-                          <Tooltip hasArrow label="Cancel" placement="top">
+                          {/* <Tooltip hasArrow label="Cancel" placement="top">
                             <CloseIcon _hover={{ color: "red" }} boxSize={6} cursor="pointer"  />
-                          </Tooltip>
+                          </Tooltip> */}
                         </Box>
+                      </HStack>
+                    )
+                  })}
+                </VStack>
+              </Box>
+            </TabPanel>
+            <TabPanel>
+              <Box>
+                <Text color="white">{`Pending-${user.groupChatInvites.length}`}</Text>
+              </Box>
+              <Divider />
+              <Box>
+                <VStack>
+                  {user.groupChatInvites.map(invite => {
+                    return (
+                      <HStack
+                        w="95%"
+                        key={invite._id}
+                        color="#8E9297"
+                        justifyContent="space-between"
+                        paddingInline="1em"
+                        paddingBlock="0.6em"
+                      >
+                        <Box>
+                          <HStack gap="2rem">
+                            <Avatar name={invite.group.groupName}>
+                              <AvatarBadge boxSize="1em" bg="green.500" />
+                            </Avatar>
+                            <VStack alignItems="flex-start">
+                              <Text color='white' fontWeight="bold" fontSize="sm">{invite.group.groupName}</Text>
+                            </VStack>
+                          </HStack>
+                        </Box>
+                        <Tooltip hasArrow label="Accept" placement="top">
+                          <CheckIcon onClick={(e) => acceptGroupChatInvite(invite)} _hover={{ color: "green" }} boxSize={6} cursor="pointer" />
+                        </Tooltip>
+                        <Tooltip hasArrow label="Decline" placement="top">
+                          <CloseIcon onClick={(e) => declineGroupChatInvite(invite)} _hover={{ color: "red" }} boxSize={6} cursor="pointer" />
+                        </Tooltip>
                       </HStack>
                     )
                   })}
@@ -266,46 +325,58 @@ const AddFriendTab = () => {
   const toast = useToast();
   
   const sendFriendRequest = async () => {
-    if (addUsername.length >= 3) {
-      // Check if user exists
-      const res = await UserService.get({ name: addUsername });
-      if (res.success) {
-        // Send Friend Request
-        const friendReqRes = await FriendInviteService.post({
-          sender: userData.id,
-          receiver: res.user._id,
-          status: "PENDING"
-        })
-        if (friendReqRes.success) {
-          toast({
-            title: "Friend Request Sent!",
-            status: "success",
-            duration: 3000,
-            isClosable: true,
-          });
-        } else {
-          toast({
-            title: "Error Sending Friend request",
-            status: "error",
-            duration: 3000,
-            isClosable: true,
-          });
-        }
-      } else {
-        toast({
-          title: "User May Not Exist",
-          status: "error",
-          duration: 3000,
-          isClosable: true,
-        });
-      }
-    } else {
+    if (addUsername.length < 3) {
       toast({
         title: "Username too short",
         status: "error",
         duration: 3000,
         isClosable: true
       })
+    } else {
+      const res = await UserService.get({ name: addUsername });
+      if (!res.success) {
+        toast({
+          title: "User May Not Exist",
+          status: "error",
+          duration: 3000,
+          isClosable: true,
+        });
+      } else {
+        // Check if user sent a pending friend request already
+        const outgoingFriendReqRes = await FriendInviteService.getOutgoing({ id: userData.id });
+        if (outgoingFriendReqRes.success) {
+          const outgoingRequests = outgoingFriendReqRes.outGoingFriendInvites;
+          if (outgoingRequests.some(friendInvite => friendInvite.receiver._id === res.user._id)) {
+            toast({
+              title: "You Already Have a Pending Friend Request",
+              status: "error",
+              duration: 3000
+            })
+          }
+        } else {
+          // Send Friend Request
+          const friendReqRes = await FriendInviteService.post({
+            sender: userData.id,
+            receiver: res.user._id,
+            status: "PENDING"
+          })
+          if (!friendReqRes.success) {
+            toast({
+              title: "Error Sending Friend request",
+              status: "error",
+              duration: 3000,
+              isClosable: true,
+            });
+          } else {
+            toast({
+              title: "Friend Request Sent!",
+              status: "success",
+              duration: 3000,
+              isClosable: true,
+            });
+          }
+        }
+      }
     }
   }
 
@@ -339,7 +410,7 @@ const AddFriendTab = () => {
 
 
 export default function FriendsSection(props: FriendsSectionProps) {
-  const { user, handleAcceptOrDeclineFriendRequest } = props;
+  const { user, handleAcceptOrDeclineFriendRequest, handleAcceptOrDeclineGroupChatInvite, handleNewGroupChat } = props;
   const [currentTab, setCurrentTab] = useState<"ONLINE" | "ALL" | "PENDING" | "ADD FRIEND">("ONLINE");
 
   const renderTab = () => {
@@ -349,14 +420,13 @@ export default function FriendsSection(props: FriendsSectionProps) {
       case "ALL":
         return <AllTab user={user} />;
       case "PENDING":
-        return <PendingTab user={user} handleAcceptOrDeclineFriendRequest={handleAcceptOrDeclineFriendRequest} />;
+        return <PendingTab handleAcceptOrDeclineGroupChatInvite={handleAcceptOrDeclineGroupChatInvite} handleNewGroupChat={handleNewGroupChat} user={user} handleAcceptOrDeclineFriendRequest={handleAcceptOrDeclineFriendRequest} />;
       case "ADD FRIEND":
         return <AddFriendTab />;
       default:
         return null;
     }
   }
-
   return (
     <Box>
       <NavBar>

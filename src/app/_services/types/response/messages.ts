@@ -1,10 +1,10 @@
 import { BaseResponse } from "./base";
-import { PopulatedMessageSchemaType } from "../../../../../types/clientSchemas";
+import { DirectMessageSchemaType } from "../../../../../types/clientSchemas";
 
 export interface GetMessageServiceResponse extends BaseResponse {
-  messages: PopulatedMessageSchemaType[];
+  messages: DirectMessageSchemaType[];
 }
 
 export interface CreateMessageServiceResponse extends BaseResponse {
-  message: PopulatedMessageSchemaType;
+  message: DirectMessageSchemaType;
 }

@@ -1,15 +1,21 @@
 import fetchData from "@/lib/fetchData";
 import { CreateGroupSchemaType } from "../../../types/clientSchemas/groups";
-import { GroupServiceResponse } from "./types/response/groups";
+import { GroupServiceResponse, GroupServiceGetMessagesResponse } from "./types/response/groups";
 
 class GroupService {
   static baseUrl = '/api/groups'
 
   static get(data: { name: string }): Promise<GroupServiceResponse> {
-    return fetchData<GroupServiceResponse>(`${this.baseUrl}`, {
+    return fetchData<GroupServiceResponse>(`${this.baseUrl}/${data.name}`, {
       method: "GET",
       credentials: "include",
-      body: JSON.stringify(data)
+    })
+  }
+
+  static getMessages(data: { id: string }): Promise<GroupServiceGetMessagesResponse> {
+    return fetchData<GroupServiceGetMessagesResponse>(`${this.baseUrl}/messages/${data.id}`, {
+      method: "GET",
+      credentials: "include"
     })
   }
 

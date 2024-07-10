@@ -22,16 +22,27 @@ export const createMessageSchema = z.object({
   content: z.string(),
 })
 
-export const populatedMessageSchema = z.object({
+export const directMessageSchemaType = z.object({
   _id: z.string(),
-  type: z.enum(["GROUP", "PRIVATE"]),
+  type: z.enum(["PRIVATE"]),
   groupId: z.string().optional(),
+  senderId: userUnpopulatedSchema,
+  receiverId: z.string(),
+  content: z.string(),
+  createdAt: z.string(),
+  updatedAt: z.string(),
+  messageReceipt: messageReceiptSchema
+})
+
+export const groupMessageSchemaType = z.object({
+  _id: z.string(),
+  type: z.enum(["GROUP"]),
+  groupId: z.string(),
   senderId: userUnpopulatedSchema,
   receiverId: z.string().optional(),
   content: z.string(),
   createdAt: z.string(),
   updatedAt: z.string(),
-  messageReceipt: messageReceiptSchema
 })
 
 export const validateCreateMessageSchema = (input: any) => {
@@ -40,4 +51,5 @@ export const validateCreateMessageSchema = (input: any) => {
 
 export type MessageSchemaType = z.infer<typeof messagesSchema>
 export type CreateMessageSchemaType = z.infer<typeof createMessageSchema>;
-export type PopulatedMessageSchemaType = z.infer<typeof populatedMessageSchema>;
+export type DirectMessageSchemaType = z.infer<typeof directMessageSchemaType>;
+export type GroupMessageSchemaType = z.infer<typeof groupMessageSchemaType>;
