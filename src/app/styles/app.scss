@@ -1,28 +1,44 @@
 @import "colors";
-
-body {
-  background-color: $bg-color;
-  min-height: 100vh;
-}
-
-main {
-  min-height: 100vh;
-}
-
 @mixin scrollbars(
-  $size: 10px,
+  $size: 5px,
   $foreground-color: #999,
   $background-color: #333,
 ) {
   &::-webkit-scrollbar {
     width: $size;
-    height: $size;
   }
 
   &::-webkit-scrollbar-thumb {
     background: $foreground-color;
+    border-radius: 10px;
   }
   &::-webkit-scrollbar-track {
     background: $background-color;
+    border-radius: 10px;
   }
+}
+
+html, body {
+  height: 100%;
+}
+
+body {
+  background: linear-gradient(to top, rgb(0, 0, 0), rgb(28 16 16));
+}
+
+main {
+  height: 100%;
+}
+
+.tab-options {
+  @include scrollbars(5px, #999, #000000)
+}
+
+.direct-messages {
+  @include scrollbars(5px, #999, #000000)
+}
+
+.chat-window {
+  @include scrollbars(5px, #999, #000000);
+
 }

@@ -18,6 +18,8 @@ export const UsersDataValidationSchema = z.object({
   groupChatInvites: groupChatInvitesSchema.array(),
   groups: groupsSchema.array(),
   friends: userUnpopulatedSchema.array(),
+  activityStatus: z.enum(["ONLINE", "OFFLINE", "AWAY", "DO NOT DISTURB", "IDLE"]),
+  online: z.boolean().default(false),
 })
 
 const UserLoginRegistrationSchema = z.object({

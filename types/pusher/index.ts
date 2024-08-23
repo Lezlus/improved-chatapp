@@ -17,6 +17,10 @@ export const pusherDirectMessageChannelName = (userId: string, friendId: string)
   return toPusherKey(`chat:${sortObjectIds(userId, friendId)}`);
 }
 
+export const pusherActivityStatusChannelName = (userId: string) => {
+  return toPusherKey(`presence-activityStatus:${userId}`);
+}
+
 export enum DirectMessageEvents {
   Incoming = "Incoming-Message",
 }
@@ -34,4 +38,11 @@ export enum GroupChatEvents {
   InviteAccepted = "Group-Chat-Invite-Accepted",
   InviteDeclined = "Group-Chat-Invite-Declined",
   Messaging = "Group-Chat-Messaging"
+}
+
+export enum ActivityStatusEvents {
+  SubscriptionSucceeded = "pusher:subscription_succeeded",
+  StatusChange = "Activity-Status-Change",
+  StatusOnline = "Activity-Status-Online",
+  StatusOffline = "Activity-Status-Offline"
 }

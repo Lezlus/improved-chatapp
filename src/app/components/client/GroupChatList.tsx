@@ -161,7 +161,7 @@ const CreateGroupChat = (props: CreateGroupChatProps) => {
   
 }
 
-export default function GroupChat(props: GroupChatProps) {
+export default function GroupChatList(props: GroupChatProps) {
   const { user, handleNewGroupChat, handleSelectedGroupChatChange } = props;
   const container = useRef<HTMLDivElement>(null)
   const { contextSafe } = useGSAP({ scope: container })

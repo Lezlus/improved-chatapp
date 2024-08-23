@@ -8,7 +8,8 @@
 
   .register__box {
     padding: 2em;
-    background-color: $secondary-bg-color;
+    background-color: $bg-color;
+    border-radius: 27px;
     display: flex;
     flex-direction: column;
     gap: 1em;

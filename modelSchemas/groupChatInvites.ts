@@ -3,7 +3,7 @@ import mongoose, { Schema, Document, ObjectId, Model, Types } from "mongoose";
 type StatusType = "PENDING" | "ACCEPTED" | "DECLINED";
 const StatusTypes = ["PENDING", "ACCEPTED", "DECLINED"] as const;
 
-export interface GroupChatInvitesType {
+export interface GroupChatInviteSchemaType {
   group: Types.ObjectId;
   sender: Types.ObjectId;
   receiver: Types.ObjectId;
@@ -12,7 +12,9 @@ export interface GroupChatInvitesType {
   updatedAt: string;
 }
 
-const GroupChatInvitesSchema = new Schema<GroupChatInvitesType>({
+export type GroupChatInviteModel = Model<GroupChatInviteSchemaType>
+
+const GroupChatInvitesSchema = new Schema<GroupChatInviteSchemaType>({
   group: { type: Schema.ObjectId, required: true, ref: "groups" },
   sender: { type: Schema.ObjectId, required: true, ref: "users" },
   receiver: { type: Schema.ObjectId, required: true, ref: "users" },

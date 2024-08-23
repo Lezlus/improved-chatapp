@@ -1,4 +1,4 @@
-import { Schema, model, Types } from 'mongoose';
+import { Schema, model, Types, Model } from 'mongoose';
 
 // enum StatusType {
 //   Pending = "PENDING",
@@ -10,7 +10,7 @@ type StatusType = "PENDING" | "ACCEPTED" | "DECLINED";
 const StatusTypes = ["PENDING", "ACCEPTED", "DECLINED"] as const;
 
 
-export interface FriendInviteType {
+export interface FriendInviteSchemaType {
   sender: Types.ObjectId;
   receiver: Types.ObjectId;
   status: StatusType;
@@ -18,7 +18,9 @@ export interface FriendInviteType {
   updatedAt: string;
 }
 
-const FriendInvitesSchema = new Schema<FriendInviteType>({
+export type FriendInviteModel = Model<FriendInviteSchemaType>;
+
+const FriendInvitesSchema = new Schema<FriendInviteSchemaType, FriendInviteModel>({
   sender: { type: Schema.ObjectId, required: true, ref: "users" },
   receiver: { type: Schema.ObjectId, required: true, ref: "users" },
   status: { type: String, enum: StatusTypes, default: "PENDING" }

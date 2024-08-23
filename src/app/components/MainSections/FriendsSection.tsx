@@ -29,8 +29,8 @@ import {
 } from "@chakra-ui/react";
 import { CloseIcon, CheckIcon } from "@chakra-ui/icons";
 import { Dispatch, SetStateAction, useEffect, useState } from "react";
-import NavBar from "./util/NavBar";
-import AvatarRow from "./util/AvatarRow";
+import NavBar from "../client/util/NavBar";
+import AvatarRow from "../client/util/AvatarRow";
 import { useSession } from "next-auth/react";
 import { FaUserFriends } from "react-icons/fa";
 import { validateUsersSchema, UserType, GroupSchemaType, GroupChatInviteSchemaType } from "../../../../types/clientSchemas";
@@ -38,7 +38,7 @@ import FriendInviteService from "@/app/_services/friendInviteService";
 import UserService from "@/app/_services/userService";
 import GroupChatInviteService from "@/app/_services/groupChatInviteService";
 import { FriendInviteSchemaType, OutGoingFriendInviteSchemaType } from "../../../../types/clientSchemas/friendInvites";
-import { MainViews } from "./types";
+import { MainViews } from "../client/types";
 import { UserUnpopulatedType } from "../../../../types/clientSchemas/userUnpopulated";
 
 // interface FriendsOptionProps {
@@ -354,6 +354,7 @@ const AddFriendTab = () => {
             })
           }
         } else {
+          console.log("Trying to send request rn");
           // Send Friend Request
           const friendReqRes = await FriendInviteService.post({
             sender: userData.id,

@@ -11,25 +11,20 @@ export async function POST(req: NextRequest) {
   const { success, data, error } = await validateRegisterLoginUser(body);
   if (success) {
     const { username, password } = data;
-    bcrypt.hash(password, 10, async (err, passwordHash) => {
-      try {
-        if (err) {
-          throw err;
-        }
-        const prevSavedUser = await Users.findOne({ username })
-        if (prevSavedUser) {
-          return NextResponse.json<RegisterAuthResponse>({ message: { userTaken: true, msgError: true } }, { status: 409 });
-        }
-        await Users.create({
-          username: username,
-          password: passwordHash
-        });
-  
-        return NextResponse.json<RegisterAuthResponse>({ message: { userTaken: false, msgError: false }}, { status: 201 });
-      } catch (e) {
-        return NextResponse.json({ err: e }, { status: 500 })
+    try {
+      const hashedPassword = await bcrypt.hash(password, 10);
+      const prevSavedUser = await Users.findOne({ username })
+      if (prevSavedUser) {
+        return NextResponse.json({ message: { userTaken: true, msgError: true } }, { status: 409 });
       }
-    })
+      await Users.create({
+        username: username,
+        password: hashedPassword
+      });
+      return NextResponse.json({ message: { userTaken: false, msgError: false }}, { status: 201 });
+    } catch (e) {
+      return NextResponse.json({ err: e }, { status: 500 })
+    }
   } else {
     return NextResponse.json({ err: error }, { status: 404 })
   }

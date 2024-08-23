@@ -27,7 +27,7 @@ import {
   Divider,
   Container,
 } from '@chakra-ui/react'
-import NavBar from './util/NavBar';
+import NavBar from '../client/util/NavBar';
 import { UserType } from '../../../../types/clientSchemas';
 import { UserUnpopulatedType } from '../../../../types/clientSchemas/userUnpopulated';
 import { DirectMessageSchemaType } from '../../../../types/clientSchemas/messages';
@@ -38,7 +38,7 @@ import { sortObjectIds } from '@/lib/sortObjectId';
 import MessageService from '@/app/_services/messageService';
 import { CreateMessageSchemaType } from '../../../../types/clientSchemas/messages';
 import { dateFormatter } from '@/lib/dateFormatter';
-import ChatMessage from './util/ChatMessage';
+import ChatMessage from '../client/util/ChatMessage';
 import { pusherDirectMessageChannelName, DirectMessageEvents } from '../../../../types/pusher';
 
 interface DirectMessageChatProps {
@@ -76,8 +76,8 @@ const ChatWindow = (props: ChatWindowProps) => {
   }
 
   return (
-    <Box height="94vh" backgroundColor="#2E3036">
-      <Box height="90%">
+    <Box height="94vh">
+      <Box height="90%" className='chat-window' overflowY="scroll">
         <VStack alignItems="flex-start">
           { messages.map(message => {
             return (
@@ -100,7 +100,7 @@ const ChatWindow = (props: ChatWindowProps) => {
   )
 }
 
-export default function DirectMessageChat(props: DirectMessageChatProps) {
+export default function DirectMessageChatSection(props: DirectMessageChatProps) {
   const { user, friend, messages, handleNewMessage } = props;
 
   useEffect(() => {
@@ -125,9 +125,9 @@ export default function DirectMessageChat(props: DirectMessageChatProps) {
 
   if (!friend) {
     return (
-      <Box>
-        <Heading>Loading...</Heading>
-      </Box>
+      <Flex h="100%" alignItems="center" justifyContent="center">
+        <Heading color="white">Click on a conversation</Heading>
+      </Flex>
     )
   }
   return (

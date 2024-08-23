@@ -4,6 +4,7 @@ import { friendInviteDAO } from "../../../../../DAO/friendInvite.dao";
 import { userDAO } from "../../../../../DAO/user.dao";
 import { pusherServer } from "@/lib/pusher";
 import { toPusherKey } from "@/lib/toPusherKey";
+import { FriendInviteEvents, pusherFriendInviteChannelName } from "../../../../../types/pusher";
 
 export async function POST(request: Request) {
   const body = await request.json();
@@ -13,7 +14,7 @@ export async function POST(request: Request) {
     const user = await friendInviteDAO.acceptFriendInvite(_id, sender, receiver);
     const receiverUser = await userDAO.getUserByIdUnpopulated(receiver);
 
-    await pusherServer.trigger(toPusherKey(`friendInvite:${sender}`), "accepted-friendinvite", receiverUser);
+    await pusherServer.trigger(pusherFriendInviteChannelName(sender), FriendInviteEvents.Accepted, receiverUser);
     return NextResponse.json({ 
       success: true, 
       friends: user?.friends, 

@@ -3,6 +3,9 @@ import bcrypt from 'bcrypt';
 
 type ComparePasswordCB = (error: any, isMatch: any) => void
 
+export type ActivityStatusType = "ONLINE" | "OFFLINE" | "AWAY" | "DO NOT DISTURB" | "IDLE";
+const ActivityStatusTypes = ["ONLINE", "OFFLINE", "AWAY", "DO NOT DISTURB", "IDLE"]
+
 export interface UsersSchemaType {
   username: string;
   password: string;
@@ -11,6 +14,8 @@ export interface UsersSchemaType {
   groupChatInvites: Types.ObjectId[];
   groups: Types.ObjectId[];
   friends: Types.ObjectId[];
+  activityStatus: ActivityStatusType;
+  online: boolean;
   createdAt: string;
   updatedAt: string;
 }
@@ -29,6 +34,8 @@ const UsersSchema = new Schema<UsersSchemaType, UserModel, UserSchemaMethods>({
   groupChatInvites: [{ type: Schema.ObjectId, required: true, ref: "groupChatInvites" }],
   groups: [{ type: Schema.ObjectId, required: true, ref: "groups" }],
   friends: [{ type: Schema.ObjectId, required: true, ref: "users" }],
+  activityStatus: { type: String, enum: ActivityStatusTypes, default: "OFFLINE" },
+  online: { type: Boolean, default: false, required: true }
 }, {timestamps: true});
 
 UsersSchema.method("comparePassword", function comparePassword(password: string, cb: ComparePasswordCB) {

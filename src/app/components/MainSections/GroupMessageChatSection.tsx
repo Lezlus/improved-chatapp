@@ -4,9 +4,9 @@
 import { Avatar, AvatarBadge, Box, Button, Grid, GridItem, HStack, Heading, Input, InputGroup, Text, VStack, useToast } from "@chakra-ui/react";
 import { StarIcon } from "@chakra-ui/icons";
 
-import NavBar from "./util/NavBar";
+import NavBar from "../client/util/NavBar";
 import { CreateMessageSchemaType, GroupMembershipType, GroupMessageSchemaType, GroupSchemaType, UserType } from "../../../../types/clientSchemas";
-import ChatMessage from "./util/ChatMessage";
+import ChatMessage from "../client/util/ChatMessage";
 import { KeyboardEvent, useEffect, useState } from "react";
 import { pusherClient } from "@/lib/pusher";
 import { GroupChatEvents, pusherGroupChatChannelName } from "../../../../types/pusher";
@@ -51,7 +51,7 @@ const GroupChatWindow = (props: GroupChatWindowProps) => {
 
   return (
     <Box height="94vh" backgroundColor="#2E3036">
-      <Box height="90%">
+      <Box height="90%" className="chat-window">
         <VStack alignItems="flex-start">
           { messages.map(message => {
             return <ChatMessage key={message._id} message={message} />
@@ -59,20 +59,20 @@ const GroupChatWindow = (props: GroupChatWindowProps) => {
         </VStack>
       </Box>
       <Box height="10%" display="flex" alignItems="flex-end">
-      <Input 
-          color="gray.200"
-          onChange={(e) => setValue(e.target.value)}
-          onKeyDown={onKeyDown}
-          value={value} 
-          placeholder="Type a message..." 
-          size="lg" 
-        />
+        <Input 
+            color="gray.200"
+            onChange={(e) => setValue(e.target.value)}
+            onKeyDown={onKeyDown}
+            value={value} 
+            placeholder="Type a message..." 
+            size="lg" 
+          />
       </Box>
     </Box>
   )
 }
 
-export default function GroupMessageChat(props: GroupMessageChatProps) {
+export default function GroupMessageChatSection(props: GroupMessageChatProps) {
   const { selectedGroupChat, messages, handleNewGroupChatMessage, user, handleAddGroupMember } = props;
   const [addUsername, setAddUsername] = useState("");
   const toast = useToast();
@@ -155,7 +155,7 @@ export default function GroupMessageChat(props: GroupMessageChatProps) {
   return (
     <Box>
       <NavBar>
-        <Avatar size='xs' name={selectedGroupChat.groupName} />
+        <Avatar ml="1em" size='xs' name={selectedGroupChat.groupName} />
         <Text fontSize="sm" color="white">{selectedGroupChat.groupName}</Text>
       </NavBar>
       <Grid templateColumns="80% 20%">
@@ -165,41 +165,42 @@ export default function GroupMessageChat(props: GroupMessageChatProps) {
         <GridItem w="100%">
           <Box>
             <Box>
-              <VStack alignItems="flex-start">
-                <Text color="white" fontWeight="bold">Invite To Group</Text>
-              </VStack>
+              <Text p="0.5em" color="white" fontWeight="bold">Invite To Group</Text>
               <Box>
-                <HStack>
-                  <InputGroup>
+                <VStack>
+                  <InputGroup w="95%">
                     <Input
                       value={addUsername}
                       onChange={(e) => setAddUsername(e.target.value)}
                       placeholder="Type a username"
-                      size="md"
+                      size="sm"
                       color="white"
                     />
                   </InputGroup>
-                  <Button colorScheme="blue" onClick={sendGroupInvite}>
+                  <Button size="sm" colorScheme="blue" onClick={sendGroupInvite}>
                     <Text padding="1em">Invite User</Text>
                   </Button>
-                </HStack>
+                </VStack>
               </Box>
             </Box>
-            <VStack>
-              {selectedGroupChat.groupMemberships.map(groupMember => {
-                return (
-                  <Box key={groupMember.user._id}>
-                    <HStack>
-                      {groupMember.user._id === selectedGroupChat.createdBy._id ? <StarIcon boxSize={3} /> : <Box></Box>}
-                      <Avatar size="sm" name={groupMember.user.username}>
-                        <AvatarBadge boxSize="1em" bg="green.500" />
-                      </Avatar>
-                      <Text fontSize="sm" color="white">{groupMember.user.username}</Text>
-                    </HStack>
-                  </Box>
-                )
-              })}
-            </VStack>
+            <Box>
+              <Text p="0.5em" color="white" fontWeight="bold">{`Users - ${selectedGroupChat.groupMemberships.length}`}</Text>
+              <VStack gap={5}>
+                {selectedGroupChat.groupMemberships.map(groupMember => {
+                  return (
+                    <Box key={groupMember.user._id}>
+                      <HStack>
+                        {groupMember.user._id === selectedGroupChat.createdBy._id ? <StarIcon boxSize={4} color="#d3992c" /> : <Box boxSize={4}></Box>}
+                        <Avatar size="sm" name={groupMember.user.username}>
+                          <AvatarBadge boxSize="1em" bg="green.500" />
+                        </Avatar>
+                        <Text fontSize="sm" color="white">{groupMember.user.username}</Text>
+                      </HStack>
+                    </Box>
+                  )
+                })}
+              </VStack>
+            </Box>
           </Box>
         </GridItem>
       </Grid>

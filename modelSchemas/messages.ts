@@ -1,4 +1,4 @@
-import mongoose, { Schema, Document, ObjectId, Types } from "mongoose";
+import mongoose, { Schema, Document, ObjectId, Types, Model } from "mongoose";
 
 // enum MessageType {
 //   Group = "GROUP",
@@ -9,7 +9,7 @@ type MessageType = "GROUP" | "PRIVATE";
 const MessageTypes = ["GROUP", "PRIVATE"] as const;
 
 
-export interface MessagesSchemaType {
+export interface MessageSchemaType {
   type: MessageType;
   groupId?: mongoose.Types.ObjectId;
   senderId: mongoose.Types.ObjectId;
@@ -20,7 +20,9 @@ export interface MessagesSchemaType {
   updatedAt: string;
 } 
 
-export const MessagesSchema = new Schema<MessagesSchemaType>({
+export type MessageModel = Model<MessageSchemaType>;
+
+export const MessagesSchema = new Schema<MessageSchemaType, MessageModel>({
   groupId: { type: mongoose.Schema.Types.ObjectId, ref: "groups", required: false },
   senderId: { type: mongoose.Schema.Types.ObjectId, ref: "users" },
   receiverId: { type: mongoose.Schema.Types.ObjectId, ref: "users", required: false},

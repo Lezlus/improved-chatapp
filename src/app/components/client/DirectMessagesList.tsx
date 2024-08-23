@@ -21,6 +21,7 @@ import AvatarRow from "./util/AvatarRow";
 import { useSession } from "next-auth/react";
 import { validateUsersSchema, UserType } from "../../../../types/clientSchemas";
 import { UserUnpopulatedType } from "../../../../types/clientSchemas/userUnpopulated";
+import { activityStatusColor } from "./types";
 
 interface DirectMessageRowProps {
   onMouseEnter: MouseEventHandler<HTMLSpanElement>
@@ -53,7 +54,7 @@ const DirectMessageRow = (props: DirectMessageRowProps) => {
           cursor:"pointer",
         }}
         leftContent={<Avatar name={user.username}>
-        <AvatarBadge boxSize="1em" bg="green.500" />
+        <AvatarBadge boxSize="1em" bg={user.online ? activityStatusColor(user.activityStatus) : "#afabab"} />
       </Avatar>}
         rightContent={<Text fontSize="sm">{user.username}</Text>}
         onClick={() => handleSelectedFriendChange(user)}
@@ -62,19 +63,19 @@ const DirectMessageRow = (props: DirectMessageRowProps) => {
   )
 }
 
-export default function DirectMessages(props: DirectMessagesProps) {
+export default function DirectMessagesList(props: DirectMessagesProps) {
   const { user, handleSelectedFriendChange } = props;
 
   const container = useRef<HTMLDivElement>(null);
   const { contextSafe } = useGSAP({ scope: container })
   const onMouseOver = contextSafe((e: React.MouseEvent<HTMLDivElement>) => {
     const target = e.currentTarget;
-    gsap.to(target, { backgroundColor: "#3F4249", color: "#A3A5A8", duration: 0, ease: "expo.out", borderRadius: '10px' })
+    gsap.to(target, { backgroundColor: "#1e1e1e", color: "#A3A5A8", duration: 0, ease: "expo.out", borderRadius: '10px' })
   })
 
   const onMouseLeave = contextSafe((e: React.MouseEvent<HTMLDivElement>) => {
     const target = e.currentTarget;
-    gsap.to(target, { backgroundColor: "#303346" ,color: "#8E9297", duration: 0, ease: "expo.out", borderRadius: "0px"})
+    gsap.to(target, { backgroundColor: "#000000" ,color: "#8E9297", duration: 0, ease: "expo.out", borderRadius: "0px"})
   })
 
   return (

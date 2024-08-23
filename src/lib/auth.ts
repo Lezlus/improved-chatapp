@@ -35,6 +35,8 @@ export const authOptions: AuthOptions = {
             friendInvites: user.friendInvites,
             groupChatInvites: user.groupChatInvites,
             groups: user.groups,
+            activityStatus: user.activityStatus,
+            online: user.online
           } as any);
         } catch (e) {
           console.log(e);
@@ -49,8 +51,6 @@ export const authOptions: AuthOptions = {
   },
   callbacks: {
     async jwt({ token, user, session, trigger }: { token: JWT, user: any, session?: any, trigger?: "signIn" | "signUp" | "update" | undefined }) {
-      console.log("JWT Callback", { token, user, session });
-
       // User only defined on login. 
       // Only token defined 
       if (user) {
@@ -63,11 +63,12 @@ export const authOptions: AuthOptions = {
         token.friendInvites = user.friendInvites;
         token.groupChatInvites = user.groupChatInvites;
         token.groups = user.groups;
+        token.activityStatus = user.activityStatus;
+        token.online = user.online;
       }
-      if (trigger === "update" && (session?.friends && session?.friendInvites)) {
-        console.log("TRIGGER DETECTED");
-        token.friends = session.friends;
-        token.friendInvites = session.friendInvites
+      if (trigger === "update" && (session?.activityStatus && session?.online)) {
+        token.activityStatus = session.activityStatus;
+        token.online = session.online
       }
       return token;
     },
@@ -83,8 +84,10 @@ export const authOptions: AuthOptions = {
         session.user.groupChatInvites = token.groupChatInvites;
         session.user.groups = token.groups;
         session.user.updatedAt = token.updatedAt;
+        session.user.activityStatus = token.activityStatus;
+        session.user.online = token.online;
       }
-      console.log("SESSION CALLED", { session, token, user });
+      // console.log("SESSION CALLED", { session, token, user });
       return session;
     }
   },

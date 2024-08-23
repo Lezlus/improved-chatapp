@@ -1,4 +1,4 @@
-import mongoose, { Schema, Document, ObjectId, Types } from "mongoose";
+import mongoose, { Schema, Document, ObjectId, Types, Model } from "mongoose";
 
 // enum StatusType {
 //   Delivered = "DELIVERED",
@@ -8,7 +8,7 @@ import mongoose, { Schema, Document, ObjectId, Types } from "mongoose";
 type StatusType = "DELIVERED" | "READ";
 const StatusTypes = ["DELIVERED", "READ"] as const;
 
-export interface MessageReceiptsSchemaType {
+export interface MessageReceiptSchemaType {
   messageId: mongoose.Types.ObjectId;
   userId: mongoose.Types.ObjectId;
   status: StatusType;
@@ -16,7 +16,9 @@ export interface MessageReceiptsSchemaType {
   updatedAt: Date;
 }
 
-export const MessageReceiptsSchema = new Schema<MessageReceiptsSchemaType>({
+export type MessageReceiptModel = Model<MessageReceiptSchemaType>
+
+export const MessageReceiptsSchema = new Schema<MessageReceiptSchemaType, MessageReceiptModel>({
   messageId: { type: Schema.Types.ObjectId, ref: "messages", required: true },
   userId: { type: Schema.Types.ObjectId, ref: "users", required: true },
   status: { type: String, enum: StatusTypes, default: "DELIVERED" }

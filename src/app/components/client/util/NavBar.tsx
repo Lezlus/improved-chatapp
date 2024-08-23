@@ -10,7 +10,7 @@ interface NavBarProps {
 
 export default function NavBar({ children }: NavBarProps) {
   return (
-    <Box className="nav" backgroundColor="#2E3036">
+    <Box className="nav" background="black">
       <HStack height="5vh">
         {children}
       </HStack>

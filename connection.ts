@@ -1,21 +1,27 @@
 import mongoose, { Document, Schema, Model } from "mongoose";
 import {  
   GroupMembershipsSchema,
-  GroupMembershipsSchemaType,
+  GroupMembershipSchemaType,
+  GroupMembershipModel,
   GroupsSchema,
-  GroupsSchemaType,
+  GroupSchemaType,
+  GroupModel,
   MessagesSchema,
-  MessagesSchemaType,
+  MessageSchemaType,
+  MessageModel,
   UsersSchema,
   UsersSchemaType,
   UserSchemaMethods,
   UserModel,
   MessageReceiptsSchema, 
-  MessageReceiptsSchemaType,
+  MessageReceiptSchemaType,
+  MessageReceiptModel,
   FriendInvitesSchema,
-  FriendInviteType,
+  FriendInviteSchemaType,
+  FriendInviteModel,
   GroupChatInvitesSchema,
-  GroupChatInvitesType,
+  GroupChatInviteSchemaType,
+  GroupChatInviteModel
 } from './modelSchemas';
 
 export const connect = async () => {
@@ -27,12 +33,12 @@ export const connect = async () => {
       console.log("mognoDB connection established");
 
       const Users: Model<UsersSchemaType, {}, UserSchemaMethods> = mongoose.models.users || mongoose.model<UsersSchemaType, UserModel>("users", UsersSchema);
-      const GroupMemberships: Model<Document<GroupMembershipsSchemaType>> = mongoose.models.groupMemberships || mongoose.model("groupMemberships", GroupMembershipsSchema);
-      const Groups: Model<Document<GroupsSchemaType>> = mongoose.models.groups || mongoose.model("groups", GroupsSchema);
-      const Messages: Model<Document<MessagesSchemaType>> = mongoose.models.messages || mongoose.model("messages", MessagesSchema);
-      const MessageReceipts: Model<Document<MessageReceiptsSchemaType>> = mongoose.models.messageReceipts || mongoose.model("messageReceipts", MessageReceiptsSchema);
-      const GroupChatInvites: Model<Document<GroupChatInvitesType>> = mongoose.models.groupChatInvites || mongoose.model("groupChatInvites", GroupChatInvitesSchema);
-      const FriendInvites: Model<Document<FriendInviteType>> = mongoose.models.friendInvites || mongoose.model("friendInvites", FriendInvitesSchema);
+      const GroupMemberships: Model<GroupMembershipSchemaType> = mongoose.models.groupMemberships || mongoose.model<GroupMembershipSchemaType, GroupMembershipModel>("groupMemberships", GroupMembershipsSchema);
+      const Groups: Model<GroupSchemaType> = mongoose.models.groups || mongoose.model<GroupSchemaType, GroupModel>("groups", GroupsSchema);
+      const Messages: Model<MessageSchemaType> = mongoose.models.messages || mongoose.model<MessageSchemaType, MessageModel>("messages", MessagesSchema);
+      const MessageReceipts: Model<MessageReceiptSchemaType> = mongoose.models.messageReceipts || mongoose.model<MessageReceiptSchemaType, MessageReceiptModel>("messageReceipts", MessageReceiptsSchema);
+      const GroupChatInvites: Model<GroupChatInviteSchemaType> = mongoose.models.groupChatInvites || mongoose.model<GroupChatInviteSchemaType, GroupChatInviteModel>("groupChatInvites", GroupChatInvitesSchema);
+      const FriendInvites: Model<FriendInviteSchemaType> = mongoose.models.friendInvites || mongoose.model<FriendInviteSchemaType, FriendInviteModel>("friendInvites", FriendInvitesSchema);
 
       return { conn, Users, Groups, GroupMemberships, Messages, MessageReceipts, GroupChatInvites, FriendInvites };
   } catch (e) {
